@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>ResultDotNet</id>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <authors>nathan wilson</authors>
     <owners>nathan wilson</owners>
     <projectUrl>https://github.com/ntwilson/result-dotnet</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Result type for C#</description>
-    <releaseNotes>Initial version</releaseNotes>
+    <releaseNotes>Match compatibility with C#</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>result functional error handling</tags>
   </metadata>
