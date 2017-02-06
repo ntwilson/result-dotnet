@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>ResultDotNet</id>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <authors>nathan wilson</authors>
     <owners>nathan wilson</owners>
     <projectUrl>https://github.com/ntwilson/result-dotnet</projectUrl>
