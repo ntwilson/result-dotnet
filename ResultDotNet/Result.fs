@@ -6,10 +6,10 @@ type Result<'tVal, 'tErr> =
   | Success of 'tVal
   | Failure of 'tErr
    
-  member this.Match success failure =
+  member this.Match (success:Func<'tVal, 'a>) (failure:Func<'tErr, 'a>) =
     match this with
-    | Success v -> success v
-    | Failure err -> failure err
+    | Success v -> success.Invoke v
+    | Failure err -> failure.Invoke err
 
   member this.Bind (onSuccess:Func<'tVal, Result<'a, 'tErr>>) =
     match this with
@@ -22,7 +22,7 @@ type Result<'tVal, 'tErr> =
     | Failure err -> Failure err
 
 module Result =
-  let toCSharpFunc f = Func<'a, 'b> f
+  let private toCSharpFunc f = Func<'a, 'b> f
 
   let Bind onSuccess (result:Result<'tVal, 'tErr>) = result.Bind onSuccess
 
@@ -64,5 +64,5 @@ module Result =
           result4 |> Map (toCSharpFunc (fun r4 ->
             onSuccess.Invoke(r1, r2, r3, r4)))))))))
 
-  let Success v = Success v
-  let Failure v = Failure v
+  let Success v : Result<'tVal, 'tErr> = Success v
+  let Failure v : Result<'tVal, 'tErr> = Failure v
