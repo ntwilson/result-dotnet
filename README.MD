@@ -60,6 +60,7 @@ string pricePerUnitForDisplay(Invoice invoice) =>
 ```
 
 ## map and bind as members
+(I apologize for the *totally* contrived examples)
 ```C#
 using ResultDotNet;
 ...
