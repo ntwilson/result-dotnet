@@ -5,7 +5,7 @@ This library adds a Result class for FP-style error handling in C#.
 There are two classes in the ResultDotNet namespace: a `Result<tVal, tErr>` generic data type, and a `Result` static class.  The former is a data type that can be used to model values that might come back as an error, along with members to consume that data.  The latter is a set of static methods that work on the Result data type that don't read well as members - notably Map2 through Map4 and Bind2 through Bind4 - as well as functions for creating new Result data types.
 
 ## usage
-### from C#
+### from C&#35;
 #### creating a Result<tVal, tErr>
 ```C#
 using ResultDotNet;
@@ -114,7 +114,7 @@ result.Match(
   failure: err => logger.Log($"DB query FAILED: {sql}"));
 ```
 
-### from F#
+### from F&#35;
 Since Result uses many higher order functions, using the C# interface doesn't interop well with F# (since F# prefers `FSharpFunc`s instead of `System.Func`s).
 To make usage from F# easier, there's a ResultDotNet.FSharp namespace that shadows the Result module with one that uses F#-friendly functions 
 #### creating a Result<'tVal, 'tErr>
