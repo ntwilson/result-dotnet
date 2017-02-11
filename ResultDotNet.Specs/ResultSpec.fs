@@ -151,3 +151,40 @@ module ResultSpec =
             (Failure "didn't work")
         |> shouldBe (Result<string, string>.Failure "didn't work")
     
+    [<Test>]
+    let ``can bind N results as an array`` () =
+        Result.bindAll (fun args -> Success (String.concat " " args))
+            ([|"Results";"are";"better";"than";"exceptions"|] |> Seq.map Success)
+        |> shouldBe (Success "Results are better than exceptions")
+
+        Result.bindAll (fun args -> Success (Seq.reduce (+) args))
+            ([|Success 0; Success 1; Success 2; Failure "didn't work"; Success 4|])
+        |> shouldBe (Result<int, string>.Failure "didn't work")
+        
+    [<Test>]
+    let ``can map N results as an array`` () =
+        Result.mapAll (fun args -> String.concat " " args)
+            ([|"Results";"are";"better";"than";"exceptions"|] |> Seq.map Success)
+        |> shouldBe (Success "Results are better than exceptions")
+
+        Result.mapAll (fun args -> Seq.reduce (+) args)
+            ([|Success 0; Success 1; Success 2; Failure "didn't work"; Success 4|])
+        |> shouldBe (Result<int, string>.Failure "didn't work")
+
+    [<Test>]
+    let ``can execute an action on just success or on just failure`` () =
+        let mutable didRun = false
+        (Success 5) |> Result.ifSuccess (fun i -> (didRun <- true))
+        didRun |> shouldBe true
+
+        didRun <- false
+        (Failure "didn't work")|> Result.ifSuccess (fun i -> (didRun <- true))
+        didRun|> shouldBe false
+
+        didRun <- false
+        (Failure "didn't work")|> Result.ifFailure (fun err -> (didRun <- true))
+        didRun|> shouldBe true
+
+        didRun <- false
+        (Success 5)|> Result.ifFailure (fun err -> (didRun <- true))
+        didRun|> shouldBe false

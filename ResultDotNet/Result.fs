@@ -17,6 +17,12 @@ type Result<'tVal, 'tErr> =
       Func<'tVal, unit> success.Invoke,
       Func<'tErr, unit> failure.Invoke)
 
+  member this.IfSuccess (success:Action<'tVal>) =
+    this.Match (success, ignore)
+
+  member this.IfFailure (failure:Action<'tErr>) =
+    this.Match (ignore, failure)
+
   member this.Bind (onSuccess:Func<'tVal, Result<'a, 'tErr>>) =
     match this with
     | Success v -> onSuccess.Invoke v

@@ -26,6 +26,21 @@ module Result =
           result4 |> bind (fun r4 ->
             onSuccess r1 r2 r3 r4))))
 
+  let private concatResults results =
+    let rec concat state rs =
+      match rs with
+      | head::tail -> 
+        match head with 
+        | Success x -> concat (x::state) tail
+        | Failure err -> Failure err
+      | [] -> Success (state |> Seq.ofList |> Seq.rev)
+
+    concat [] (results |> Seq.toList)
+
+  let bindAll onSuccess results = 
+    concatResults results
+    |> bind onSuccess
+
   let map (onSuccess : 'tVal -> 'a) (result:Result<'tVal, 'tErr>) = 
     result.Map (toCSharpFunc onSuccess)
 
@@ -46,3 +61,11 @@ module Result =
         result3 |> bind (fun r3 ->
           result4 |> map (fun r4 ->
             onSuccess r1 r2 r3 r4))))
+          
+  let mapAll onSuccess results = 
+    concatResults results
+    |> map onSuccess
+
+  let ifSuccess success (result:Result<_,_>) = result.IfSuccess (Action<_> success)
+
+  let ifFailure failure (result:Result<_,_>) = result.IfFailure (Action<_> failure)

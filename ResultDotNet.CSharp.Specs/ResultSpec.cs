@@ -39,6 +39,25 @@ namespace ResultDotNet.CSharp.Specs {
         }
 
         [Test]
+        public void HasMembersToExecuteActionsSpecificallyForFailuresOrSuccesses() {
+            var didRun = false;
+            Success<int, string>(5).IfSuccess(i => { didRun = true; });
+            didRun.ShouldBe(true);
+
+            didRun = false;
+            Failure<int, string>("didn't work").IfSuccess(i => { didRun = true; });
+            didRun.ShouldBe(false);
+
+            didRun = false;
+            Failure<int, string>("didn't work").IfFailure(err => { didRun = true; });
+            didRun.ShouldBe(true);
+
+            didRun = false;
+            Success<int, string>(5).IfFailure(err => { didRun = true; });
+            didRun.ShouldBe(false);
+        }
+
+        [Test]
         public void MapMemberShouldWorkWithNonResults() {
             Success<int, string>(5).Map(i => i + 3)
             .ShouldBe(Success<int, string>(8));
