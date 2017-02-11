@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>ResultDotNet</id>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <authors>nathan wilson</authors>
     <owners>nathan wilson</owners>
     <projectUrl>https://github.com/ntwilson/result-dotnet</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Result type for C#</description>
-    <releaseNotes>Now fully tested</releaseNotes>
+    <description>Result type for C# and F#</description>
+    <releaseNotes>Supports F#, and the Match member supports Actions</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>result functional error handling</tags>
   </metadata>

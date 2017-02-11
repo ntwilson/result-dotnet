@@ -6,7 +6,10 @@
     "compilerName": "fsc",
     "compile": {
       "includeFiles": [
-        "Result.fs"
+        "FuncTransforms.fs",
+        "Result.fs",
+        "FsResultModule.fs",
+        "CsResultModule.fs"
       ]
     }
   },
