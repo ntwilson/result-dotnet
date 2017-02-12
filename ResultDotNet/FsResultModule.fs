@@ -1,10 +1,18 @@
 namespace ResultDotNet.FSharp
 
+open ResultDotNet
+open FuncTransforms
+
+type ResultExpression () =
+  member this.Bind (x:Result<_,_>, onSuccess) = x.Bind (toCSharpFunc onSuccess)
+  member this.Return x = Success x
+  member this.ReturnFrom x = x
+
 module Result =
   open System
-  open ResultDotNet
-  open FuncTransforms
   
+  let expr = new ResultExpression ()
+
   let bind (onSuccess : 'tVal -> Result<'a, 'tErr>) (result:Result<'tVal, 'tErr>) = 
     result.Bind (toCSharpFunc onSuccess)
 

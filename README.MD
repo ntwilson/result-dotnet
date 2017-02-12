@@ -147,7 +147,7 @@ open ResultDotNet.FSharp
 type Invoice = { Total:float; NumberOfUnits:float }
 let pricePerUnit invoice = divide invoice.Total invoice.NumberOfUnits
 let savingsPerUnit invoice dollarsOff =
-  pricePerUnit invoice |> Result.bind (fun ppu -> divide(dollarsOff, ppu))
+  pricePerUnit invoice |> Result.bind (fun ppu -> divide dollarsOff ppu)
   // you could of course `pricePerUnit () |> Result.bind (divide dollarsOff)`
   // but I find it counterintuitive that dollarsOff would be the numerator with that syntax
 
@@ -173,4 +173,39 @@ open ResultDotNet.FSharp
 ...
 let result:Result<DataTable, string> = executeDatabaseQuery sql
 result |> Result.ifFailure (logger.Log);
+```
+
+#### computation expressions
+when using ResultDotNet from F#, you can use a computation expression in place of bind & map.  These are repeats of the above examples now using computation expressions:
+```F#
+open ResultDotNet
+open ResultDotNet.FSharp
+...
+type Invoice = { Total:float; NumberOfUnits:float }
+let pricePerUnit invoice = divide invoice.Total invoice.NumberOfUnits
+let savingsPerUnit invoice dollarsOff =
+  Result.expr {
+    let! ppu = pricePerUnit invoice
+    return! divide dollarsOff ppu
+  }
+
+let pricePerUnitWithDiscount invoice dollarsOffPerUnit =
+  Result.expr {
+    let! ppu = pricePerUnit invoice
+    return ppu - dollarsOffPerUnit
+  }
+```
+```F#
+open ResultDotNet
+open ResultDotNet.FSharp
+...
+type Invoice = { Total:float; NumberOfUnits:float }
+let createInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
+
+let createInvoice (total:Result<double, string>) (numberOfUnits:Result<double, string>) =
+  Result.expr {
+    let! t = total
+    let! n = numberOfUnits
+    return createInvoice t n
+  }
 ```
