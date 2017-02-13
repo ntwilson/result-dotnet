@@ -9,7 +9,10 @@
     "dotnet-test-nunit": "3.4.0-beta-3",
     "ResultDotNet": { 
       "target": "project"
-    }
+    },
+    "Ifp.PatternMatching": "1.0.0",
+    "LanguageExt.Core": "1.9.7",
+    "System.Data.Common": "4.3.0"
   },
   "testRunner": "nunit",
   "frameworks": {

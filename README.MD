@@ -90,7 +90,7 @@ but there are also functions for Map2 through Map4 and Bind2 through Bind4 that 
 ```C#
 using ResultDotNet;
 ...
-Invoice createInvoice(double total, double numberOfUnits) => new Invoice(total, numberOfUnits)
+Invoice createInvoice(double total, double numberOfUnits) => new Invoice(total, numberOfUnits);
 
 Result<Invoice, string> createInvoice(Result<double, string> total, Result<double, string> numberOfUnits) =>
   Result.Map2(createInvoice, total, numberOfUnits);
@@ -122,7 +122,7 @@ To make usage from F# easier, there's a ResultDotNet.FSharp namespace that shado
 open ResultDotNet
 ...
 let divide (numerator:float) (denominator:float) =
-  if denominator = 0
+  if denominator = 0.
   then Failure "Cannot divide by 0!"
   else Success (numerator / denominator)
 ```
@@ -152,17 +152,17 @@ let savingsPerUnit invoice dollarsOff =
   // but I find it counterintuitive that dollarsOff would be the numerator with that syntax
 
 let pricePerUnitWithDiscount invoice dollarsOffPerUnit =
-  pricePerUnit invoice |> result.map (fun ppu -> ppu - dollarsOffPerUnit)
+  pricePerUnit invoice |> Result.map (fun ppu -> ppu - dollarsOffPerUnit)
 ```
 ```F#
 open ResultDotNet
 open ResultDotNet.FSharp
 ...
 type Invoice = { Total:float; NumberOfUnits:float }
-let createInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
+let newInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
 
 let createInvoice (total:Result<double, string>) (numberOfUnits:Result<double, string>) =
-  Result.map2 createInvoice total numberOfUnits
+  Result.map2 newInvoice total numberOfUnits
 ```
 
 #### taking actions on success or failure
@@ -200,12 +200,12 @@ open ResultDotNet
 open ResultDotNet.FSharp
 ...
 type Invoice = { Total:float; NumberOfUnits:float }
-let createInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
+let newInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
 
 let createInvoice (total:Result<double, string>) (numberOfUnits:Result<double, string>) =
   Result.expr {
     let! t = total
     let! n = numberOfUnits
-    return createInvoice t n
+    return newInvoice t n
   }
 ```
