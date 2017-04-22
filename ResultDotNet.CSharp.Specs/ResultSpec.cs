@@ -1,13 +1,13 @@
 ﻿using System;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResultDotNet;
 using static ResultDotNet.Result;
 
 namespace ResultDotNet.CSharp.Specs {
-    [TestFixture]
+    [TestClass]
     public class ResultSpec {
 
-        [Test]
+        [TestMethod]
         public void MatchMemberShouldReturnAnAppropriateValue() {
             Success<int, string>(5).Match(
                 success: i => i.ToString(),
@@ -20,7 +20,7 @@ namespace ResultDotNet.CSharp.Specs {
             .ShouldBe("didn't work");
         }
 
-        [Test]
+        [TestMethod]
         public void MatchMemberShouldSupportActions() {
             var didRun = false;
             Success<int, string>(5).Match(
@@ -38,7 +38,7 @@ namespace ResultDotNet.CSharp.Specs {
             didRun.ShouldBe(true);
         }
 
-        [Test]
+        [TestMethod]
         public void HasMembersToExecuteActionsSpecificallyForFailuresOrSuccesses() {
             var didRun = false;
             Success<int, string>(5).IfSuccess(i => { didRun = true; });
@@ -57,7 +57,7 @@ namespace ResultDotNet.CSharp.Specs {
             didRun.ShouldBe(false);
         }
 
-        [Test]
+        [TestMethod]
         public void MapMemberShouldWorkWithNonResults() {
             Success<int, string>(5).Map(i => i + 3)
             .ShouldBe(Success<int, string>(8));
@@ -66,7 +66,7 @@ namespace ResultDotNet.CSharp.Specs {
             .ShouldBe(Failure<int, string>("didn't work"));
         }
 
-        [Test]
+        [TestMethod]
         public void BindMemberShouldWorkWithResultFuncs() {
             Success<int, string>(5).Bind(i => Success<int, string>(i + 3))
             .ShouldBe(Success<int,string>(8));
@@ -75,7 +75,7 @@ namespace ResultDotNet.CSharp.Specs {
             .ShouldBe(Failure<int, string>("didn't work"));
         }
 
-        [Test]
+        [TestMethod]
         public void StaticBindAndMapMembersPassThroughToFSharpVersions() {
             Result.Map2((int a, string b) => a.ToString() + b,
                 Success<int, string>(99),

@@ -1,15 +1,14 @@
 ﻿namespace ResultDotNet.Specs
 
-open NUnit.Framework
+open Xunit
 
-[<TestFixture>]
 module ResultSpec =
   open Should
   open ResultDotNet
   open ResultDotNet.FSharp
   open System
 
-  [<Test>]
+  [<Fact>]
   let ``should have structural equality`` () =
     Success 5 |> shouldBe (Success 5)
     Failure "didn't work" |> shouldBe (Failure "didn't work")
@@ -17,21 +16,21 @@ module ResultSpec =
     Success 5 |> shouldNotBe (Success 10)
     Failure "didn't work" |> shouldNotBe (Failure "hello world")
 
-  [<Test>]
+  [<Fact>]
   let ``static functions behave the same as the members`` () =
     Success 5 |> Result.map ((+) 3)
     |> shouldBe (Success 8)
 
     Failure "didn't work" |> Result.map ((+) 3)
-    |> shouldBe (Result<int, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<int, string> "didn't work")
     
     Success 5 |> Result.bind (fun i -> Success (i + 3))
     |> shouldBe (Success 8)
 
     Failure "didn't work" |> Result.bind (fun i -> Success (i + 3))
-    |> shouldBe (Result<int, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<int, string> "didn't work")
 
-  [<Test>]
+  [<Fact>]
   let ``can map two results`` () =
     Result.map2 (fun i j -> (float i) + j)
       (Success 3)
@@ -41,14 +40,14 @@ module ResultSpec =
     Result.map2 (fun i j -> (float i) + j)
       (Failure "didn't work")
       (Success 5.)
-    |> shouldBe (Result<float, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<float, string> "didn't work")
         
     Result.map2 (fun i j -> (float i) + j)
       (Success 3)
       (Failure "didn't work")
-    |> shouldBe (Result<float, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<float, string> "didn't work")
 
-  [<Test>]
+  [<Fact>]
   let ``can bind two results`` () =
     Result.bind2 (fun i j -> Success ((float i) + j))
       (Success 3)
@@ -58,14 +57,14 @@ module ResultSpec =
     Result.bind2 (fun i j -> Success ((float i) + j))
       (Failure "didn't work")
       (Success 5.)
-    |> shouldBe (Result<float, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<float, string> "didn't work")
         
     Result.bind2 (fun i j -> Success ((float i) + j))
       (Success 3)
       (Failure "didn't work")
-    |> shouldBe (Result<float, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<float, string> "didn't work")
 
-  [<Test>]
+  [<Fact>]
   let ``can map three results`` () =
     Result.map3 (fun i j k -> i.ToString() + j.ToString() + k)
       (Success 13)
@@ -77,15 +76,15 @@ module ResultSpec =
       (Failure "didn't work")
       (Success 37.)
       (Success "code")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
         
     Result.map3 (fun i j k -> i.ToString() + j.ToString() + k)
       (Success 13)
       (Success 37.)
       (Failure "didn't work")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
     
-  [<Test>]
+  [<Fact>]
   let ``can bind three results`` () =
     Result.bind3 (fun i j k -> Success (i.ToString() + j.ToString() + k))
       (Success 13)
@@ -97,15 +96,15 @@ module ResultSpec =
       (Failure "didn't work")
       (Success 37.)
       (Success "code")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
         
     Result.bind3 (fun i j k -> Success (i.ToString() + j.ToString() + k))
       (Success 13)
       (Success 37.)
       (Failure "didn't work")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
     
-  [<Test>]
+  [<Fact>]
   let ``can map four results`` () =
     Result.map4 (fun i j k l -> i.ToString() + j.ToString() + k + l)
       (Success 13)
@@ -119,16 +118,16 @@ module ResultSpec =
       (Success 37.)
       (Success "co")
       (Success "de")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
         
     Result.map4 (fun i j k l -> i.ToString() + j.ToString() + k + l)
       (Success 13)
       (Success 37.)
       (Success "co")
       (Failure "didn't work")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
     
-  [<Test>]
+  [<Fact>]
   let ``can bind four results`` () =
     Result.bind4 (fun i j k l -> Success (i.ToString() + j.ToString() + k + l))
       (Success 13)
@@ -142,16 +141,16 @@ module ResultSpec =
       (Success 37.)
       (Success "co")
       (Success "de")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
         
     Result.bind4 (fun i j k l -> Success (i.ToString() + j.ToString() + k + l))
       (Success 13)
       (Success 37.)
       (Success "co")
       (Failure "didn't work")
-    |> shouldBe (Result<string, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<string, string> "didn't work")
     
-  [<Test>]
+  [<Fact>]
   let ``can bind N results as an array`` () =
     Result.bindAll ((String.concat " ") >> Success)
       ([|"Results";"are";"better";"than";"exceptions"|] |> Seq.map Success)
@@ -159,9 +158,9 @@ module ResultSpec =
 
     Result.bindAll (fun args -> Success (Seq.reduce (+) args))
       ([|Success 0; Success 1; Success 2; Failure "didn't work"; Success 4|])
-    |> shouldBe (Result<int, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<int, string> "didn't work")
         
-  [<Test>]
+  [<Fact>]
   let ``can map N results as an array`` () =
     Result.mapAll (fun args -> String.concat " " args)
       ([|"Results";"are";"better";"than";"exceptions"|] |> Seq.map Success)
@@ -169,9 +168,9 @@ module ResultSpec =
 
     Result.mapAll (fun args -> Seq.reduce (+) args)
       ([|Success 0; Success 1; Success 2; Failure "didn't work"; Success 4|])
-    |> shouldBe (Result<int, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<int, string> "didn't work")
 
-  [<Test>]
+  [<Fact>]
   let ``can execute an action on just success or on just failure`` () =
     let mutable didRun = false
     (Success 5) |> Result.ifSuccess (fun i -> (didRun <- true))
@@ -189,7 +188,7 @@ module ResultSpec =
     (Success 5)|> Result.ifFailure (fun err -> (didRun <- true))
     didRun|> shouldBe false
 
-  [<Test>]
+  [<Fact>]
   let ``can use computation expressions to bind and map Results`` () =
     let tryToGetA = Success 5
     let tryToGetB = Success 10
@@ -207,7 +206,7 @@ module ResultSpec =
       let! x = tryToGetA
       let! y = tryToGetC
       return add x y }
-    |> shouldBe (Result<int, string>.Failure "didn't work")
+    |> shouldBe (Result.Failure<int, string> "didn't work")
 
     Result.expr {
       let! x = tryToGetA

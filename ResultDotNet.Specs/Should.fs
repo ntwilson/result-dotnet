@@ -1,16 +1,16 @@
 namespace ResultDotNet.Specs
 
 module Should = 
-  open NUnit.Framework
+  open Xunit
 
-  let shouldBe expected actual = 
-    Assert.AreEqual (expected, actual)
+  let shouldBe (expected:'a) (actual:'a) = 
+    Assert.Equal<'a> (expected, actual)
 
-  let shouldNotBe expected actual = 
-    Assert.AreNotEqual (expected, actual)
+  let shouldNotBe (expected:'a) (actual:'a) = 
+    Assert.NotEqual<'a> (expected, actual)
 
   let shouldSatisfy predicate actual =
     predicate actual |> shouldBe true
 
-  let shouldNotSatisfo predicate actual = 
+  let shouldNotSatisfy predicate actual = 
     predicate actual |> shouldNotBe true

@@ -36,7 +36,7 @@ module ReadmeSpec =
     Result.map2 newInvoice total numberOfUnits
 
   let executeDatabaseQuery sql = 
-    Result<DataTable, string>.Failure "no query"
+    Result.Failure<DataTable, string> "no query"
     
 
   type Logger() = member this.Log err = ()

@@ -1,4 +1,5 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace ResultDotNet.CSharp.Specs {
   public static class ShouldExtensions {
     public static void ShouldBe<T>(this T actual, T expected) {

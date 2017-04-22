@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using NUnit.Framework;
 using PatternMatching;
 using static LanguageExt.Prelude;
 using ResultDotNet;
