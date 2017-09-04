@@ -9,85 +9,85 @@ namespace ResultDotNet.CSharp.Specs {
 
         [TestMethod]
         public void MatchMemberShouldReturnAnAppropriateValue() {
-            Success<int, string>(5).Match(
-                success: i => i.ToString(),
-                failure: err => err)
+            Ok<int, string>(5).Match(
+                ok: i => i.ToString(),
+                error: err => err)
             .ShouldBe("5");
             
-            Failure<int, string>("didn't work").Match(
-                success: i => i.ToString(),
-                failure: err => err)
+            Error<int, string>("didn't work").Match(
+                ok: i => i.ToString(),
+                error: err => err)
             .ShouldBe("didn't work");
         }
 
         [TestMethod]
         public void MatchMemberShouldSupportActions() {
             var didRun = false;
-            Success<int, string>(5).Match(
-                success: i => { didRun = true; },
-                failure: err => { });
+            Ok<int, string>(5).Match(
+                ok: i => { didRun = true; },
+                error: err => { });
 
             didRun.ShouldBe(true);
 
             didRun = false;
 
-            Failure<int, string>("didn't work").Match(
-                success: i => {},
-                failure: err => { didRun = true; });
+            Error<int, string>("didn't work").Match(
+                ok: i => {},
+                error: err => { didRun = true; });
 
             didRun.ShouldBe(true);
         }
 
         [TestMethod]
-        public void HasMembersToExecuteActionsSpecificallyForFailuresOrSuccesses() {
+        public void HasMembersToExecuteActionsSpecificallyForErrorsOrOkes() {
             var didRun = false;
-            Success<int, string>(5).IfSuccess(i => { didRun = true; });
+            Ok<int, string>(5).IfOk(i => { didRun = true; });
             didRun.ShouldBe(true);
 
             didRun = false;
-            Failure<int, string>("didn't work").IfSuccess(i => { didRun = true; });
+            Error<int, string>("didn't work").IfOk(i => { didRun = true; });
             didRun.ShouldBe(false);
 
             didRun = false;
-            Failure<int, string>("didn't work").IfFailure(err => { didRun = true; });
+            Error<int, string>("didn't work").IfError(err => { didRun = true; });
             didRun.ShouldBe(true);
 
             didRun = false;
-            Success<int, string>(5).IfFailure(err => { didRun = true; });
+            Ok<int, string>(5).IfError(err => { didRun = true; });
             didRun.ShouldBe(false);
         }
 
         [TestMethod]
         public void MapMemberShouldWorkWithNonResults() {
-            Success<int, string>(5).Map(i => i + 3)
-            .ShouldBe(Success<int, string>(8));
+            Ok<int, string>(5).Map(i => i + 3)
+            .ShouldBe(Ok<int, string>(8));
 
-            Failure<int, string>("didn't work").Map(i => i + 3)
-            .ShouldBe(Failure<int, string>("didn't work"));
+            Error<int, string>("didn't work").Map(i => i + 3)
+            .ShouldBe(Error<int, string>("didn't work"));
         }
 
         [TestMethod]
         public void BindMemberShouldWorkWithResultFuncs() {
-            Success<int, string>(5).Bind(i => Success<int, string>(i + 3))
-            .ShouldBe(Success<int,string>(8));
+            Ok<int, string>(5).Bind(i => Ok<int, string>(i + 3))
+            .ShouldBe(Ok<int,string>(8));
 
-            Failure<int, string>("didn't work").Bind(i => Success<int, string>(i + 3))
-            .ShouldBe(Failure<int, string>("didn't work"));
+            Error<int, string>("didn't work").Bind(i => Ok<int, string>(i + 3))
+            .ShouldBe(Error<int, string>("didn't work"));
         }
 
         [TestMethod]
         public void StaticBindAndMapMembersPassThroughToFSharpVersions() {
             Result.Map2((int a, string b) => a.ToString() + b,
-                Success<int, string>(99),
-                Success<string, string>(" bottles of beer on the wall"))
-            .ShouldBe(Success<string, string>("99 bottles of beer on the wall"));
+                Ok<int, string>(99),
+                Ok<string, string>(" bottles of beer on the wall"))
+            .ShouldBe(Ok<string, string>("99 bottles of beer on the wall"));
 
             Result.Bind3((int a, string b, string c) => 
-                    Success<string, string>(a.ToString() + b + ". " + a.ToString() + c),
-                Success<int, string>(99),
-                Success<string, string>(" bottles of beer on the wall"),
-                Success<string, string>(" bottles of beer"))
-            .ShouldBe(Success<string, string>("99 bottles of beer on the wall. 99 bottles of beer"));
+                    Ok<string, string>(a.ToString() + b + ". " + a.ToString() + c),
+                Ok<int, string>(99),
+                Ok<string, string>(" bottles of beer on the wall"),
+                Ok<string, string>(" bottles of beer"))
+            .ShouldBe(Ok<string, string>("99 bottles of beer on the wall. 99 bottles of beer"));
         }
     }
 }

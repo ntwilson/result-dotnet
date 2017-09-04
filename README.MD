@@ -12,8 +12,8 @@ using ResultDotNet;
 ...
 Result<double, string> divide(double numerator, double denominator) =>
   (denominator == 0)
-    ? Result.Failure<double, string>("Cannot divide by 0!")
-    : Result.Success<double, string>(numerator / denominator);
+    ? Result.Error<double, string>("Cannot divide by 0!")
+    : Result.Ok<double, string>(numerator / denominator);
 ```
 You could also use the C#6 `using static` feature to simplify the above to:
 ```C#
@@ -22,8 +22,8 @@ using static ResultDotNet.Result;
 ...
 Result<double, string> divide(double numerator, double denominator) =>
   (denominator == 0)
-    ? Failure<double, string>("Cannot divide by 0!")
-    : Success<double, string>(numerator / denominator);
+    ? Error<double, string>("Cannot divide by 0!")
+    : Ok<double, string>(numerator / denominator);
 ```
 
 #### extracting the value of a Result<tVal, tErr>
@@ -33,19 +33,19 @@ using ResultDotNet;
 ...
 string pricePerUnitForDisplay(Invoice invoice) =>
   divide(invoice.Total, invoice.NumberOfUnits).Match(
-    success: ppu => ppu.ToString(),
-    failure: err => $"N/A: {err}");
+    ok: ppu => ppu.ToString(),
+    error: err => $"N/A: {err}");
 ```
-Result is a union of types `Result<tVal, tErr>.Success` and `Result<tVal, tErr>.Failure` (`Result<tVal,tErr>` itself is abstract, and has the two unioned types as concrete child classes), so you can also manually check the types:
+Result is a union of types `Result<tVal, tErr>.Ok` and `Result<tVal, tErr>.Error` (`Result<tVal,tErr>` itself is abstract, and has the two unioned types as concrete child classes), so you can also manually check the types:
 ```C#
 using ResultDotNet;
 ...
 string pricePerUnitForDisplay(Invoice invoice) {
   var ans = divide(invoice.Total, invoice.NumberOfUnits);
-  if (ans is Result<double, string>.Success) 
-    return (ans as Result<double, string>.Success).Item.ToString();
+  if (ans is Result<double, string>.Ok) 
+    return (ans as Result<double, string>.Ok).Item.ToString();
   else {
-    var err = (ans as Result<double, string>.Failure).Item;
+    var err = (ans as Result<double, string>.Error).Item;
     return $"N/A: {err}";
   }
 }
@@ -57,8 +57,8 @@ using PatternMatching;
 ...
 string pricePerUnitForDisplay(Invoice invoice) =>
   Pattern.Match<Result<double, string>, string>(divide(invoice.Total, invoice.NumberOfUnits))
-    .Case<Result<double, string>.Success>(div => div.Item.ToString())
-    .Case<Result<double, string>.Failure>(err => $"N/A: {err.Item}");
+    .Case<Result<double, string>.Ok>(div => div.Item.ToString())
+    .Case<Result<double, string>.Error>(err => $"N/A: {err.Item}");
 ```
 
 #### map and bind as members
@@ -96,13 +96,13 @@ Result<Invoice, string> createInvoice(Result<double, string> total, Result<doubl
   Result.Map2(createInvoice, total, numberOfUnits);
 ```
 
-#### taking actions on success or failure
-if you need to take an action on success or failure instead of returning a value, you can use the overloads for the `Match()` member, or the `IfSuccess()` and `IfFailure()` members:
+#### taking actions on ok or error
+if you need to take an action on ok or error instead of returning a value, you can use the overloads for the `Match()` member, or the `IfOk()` and `IfError()` members:
 ```C#
 using ResultDotNet;
 ...
 Result<DataTable, string> result = executeDatabaseQuery(sql);
-result.IfFailure(err => logger.Log(err));
+result.IfError(err => logger.Log(err));
 ```
 
 ```C#
@@ -110,8 +110,8 @@ using ResultDotNet;
 ...
 Result<DataTable, string> result = executeDatabaseQuery(sql);
 result.Match(
-  success: val => logger.Log($"DB query ran successfully: {sql}"),
-  failure: err => logger.Log($"DB query FAILED: {sql}"));
+  ok: val => logger.Log($"DB query ran successfully: {sql}"),
+  error: err => logger.Log($"DB query FAILED: {sql}"));
 ```
 
 ### from F&#35;
@@ -123,19 +123,19 @@ open ResultDotNet
 ...
 let divide (numerator:float) (denominator:float) =
   if denominator = 0.
-  then Failure "Cannot divide by 0!"
-  else Success (numerator / denominator)
+  then Error "Cannot divide by 0!"
+  else Ok (numerator / denominator)
 ```
 
 #### extracting the value of a Result<'tVal, 'tErr>
-Result is a union of types `Success of 'tVal` and `Failure of 'tErr`, so the easiest way to get the result is to use a `match` statement:
+Result is a union of types `Ok of 'tVal` and `Error of 'tErr`, so the easiest way to get the result is to use a `match` statement:
 ```F#
 open ResultDotNet
 ...
 let pricePerUnitForDisplay invoice =
   match divide invoice.Total invoice.NumberOfUnits with
-  | Success ppu -> ppu.ToString()
-  | Failure err -> "N/A: " + err
+  | Ok ppu -> ppu.ToString()
+  | Error err -> "N/A: " + err
 ```
 
 #### map and bind as members
@@ -165,14 +165,14 @@ let createInvoice (total:Result<double, string>) (numberOfUnits:Result<double, s
   Result.map2 newInvoice total numberOfUnits
 ```
 
-#### taking actions on success or failure
-if you need to take an action on success or failure instead of returning a value, you can use the match statement as normal, or you can use the `ifSuccess` and `ifFailure` functions:
+#### taking actions on ok or error
+if you need to take an action on ok or error instead of returning a value, you can use the match statement as normal, or you can use the `ifOk` and `ifError` functions:
 ```F#
 open ResultDotNet
 open ResultDotNet.FSharp
 ...
 let result:Result<DataTable, string> = executeDatabaseQuery sql
-result |> Result.ifFailure (logger.Log);
+result |> Result.ifError (logger.Log);
 ```
 
 #### computation expressions

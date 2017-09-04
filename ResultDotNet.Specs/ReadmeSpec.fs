@@ -6,20 +6,19 @@ namespace ResultDotNet.Specs
 module ReadmeSpec =
   open System
   open System.Data
-  open ResultDotNet
   open ResultDotNet.FSharp
 
   let divide (numerator:float) (denominator:float) =
     if denominator = 0.
-    then Failure "Cannot divide by 0!"
-    else Success (numerator / denominator)
+    then Error "Cannot divide by 0!"
+    else Ok (numerator / denominator)
 
   type Invoice = { Total:float; NumberOfUnits:float }
 
   let pricePerUnitForDisplay invoice =
     match divide invoice.Total invoice.NumberOfUnits with
-    | Success ppu -> ppu.ToString()
-    | Failure err -> "N/A: " + err
+    | Ok ppu -> ppu.ToString()
+    | Error err -> "N/A: " + err
 
   let pricePerUnit invoice = divide invoice.Total invoice.NumberOfUnits
   let savingsPerUnit invoice dollarsOff =
@@ -36,7 +35,7 @@ module ReadmeSpec =
     Result.map2 newInvoice total numberOfUnits
 
   let executeDatabaseQuery sql = 
-    Result.Failure<DataTable, string> "no query"
+    Result<DataTable, string>.Error "no query"
     
 
   type Logger() = member this.Log err = ()
@@ -44,7 +43,7 @@ module ReadmeSpec =
   let sql = ""
 
   let result:Result<DataTable, string> = executeDatabaseQuery sql
-  result |> Result.ifFailure (logger.Log);
+  result |> Result.ifError (logger.Log);
 
   let savingsPerUnit2 invoice dollarsOff =
     Result.expr {

@@ -6,88 +6,115 @@ namespace ResultDotNet
 module Result =
   open System
   open FuncTransforms
-  open ResultDotNet.FSharp
   
   /// <summary>
-  /// If the Result is success, "unwraps" the successful value and passes it
+  /// If the Result is ok, "unwraps" the ok value and passes it
   /// to the function given, returning the result of that function.  If the 
-  /// Result is failure, returns the failure without calling the function given. 
+  /// Result is error, returns the error without calling the function given. 
   /// </summary>
-  let Bind onSuccess result = Result.bind (toFSharpFunc onSuccess) result
+  let Bind onOk (result:Result<_,_>) = result.Bind onOk
 
   /// <summary>
-  /// If all the Results are success, "unwraps" the successful values and passes them
+  /// If all the Results are ok, "unwraps" the ok values and passes them
   /// to the function given, returning the result of that function.  If any Result 
-  /// is failure, returns the first failure without calling the function given. 
+  /// is error, returns the first error without calling the function given. 
   /// </summary>
-  let Bind2 onSuccess result1 result2 = Result.bind2 (toFSharpFunc2 onSuccess) result1 result2
+  let Bind2 (onOk:Func<'a, 'b, Result<'c, 'd>>) (result1:Result<'a,'d>) (result2:Result<'b,'d>) = 
+    result1.Bind(fun r1 ->
+      result2.Bind(fun r2 -> onOk.Invoke (r1, r2)))
 
   /// <summary>
-  /// If all the Results are success, "unwraps" the successful values and passes them
+  /// If all the Results are ok, "unwraps" the ok values and passes them
   /// to the function given, returning the result of that function.  If any Result 
-  /// is failure, returns the first failure without calling the function given. 
+  /// is error, returns the first error without calling the function given. 
   /// </summary>
-  let Bind3 onSuccess result1 result2 result3 = 
-    Result.bind3 (toFSharpFunc3 onSuccess) result1 result2 result3
+  let Bind3 (onOk:Func<'a, 'b, 'c, Result<'d, 'e>>) (result1:Result<'a,'e>) (result2:Result<'b,'e>) (result3:Result<'c,'e>) = 
+    result1.Bind(fun r1 ->
+      result2.Bind(fun r2 -> 
+        result3.Bind(fun r3 -> onOk.Invoke (r1, r2, r3))))
 
   /// <summary>
-  /// If all the Results are success, "unwraps" the successful values and passes them
+  /// If all the Results are ok, "unwraps" the ok values and passes them
   /// to the function given, returning the result of that function.  If any Result 
-  /// is failure, returns the first failure without calling the function given. 
+  /// is error, returns the first error without calling the function given. 
   /// </summary>
-  let Bind4 onSuccess result1 result2 result3 result4 = 
-    Result.bind4 (toFSharpFunc4 onSuccess) result1 result2 result3 result4
+  let Bind4 (onOk:Func<'a, 'b, 'c, 'd, Result<'e, 'f>>) (result1:Result<'a,'f>) (result2:Result<'b,'f>) (result3:Result<'c,'f>) (result4:Result<'d,'f>) = 
+    result1.Bind(fun r1 ->
+      result2.Bind(fun r2 -> 
+        result3.Bind(fun r3 -> 
+          result4.Bind(fun r4 -> onOk.Invoke (r1, r2, r3, r4)))))
+
+  let private concatResults results =
+    let rec concat state rs =
+      match rs with
+      | head::tail -> 
+        match head with 
+        | Ok x -> concat (x::state) tail
+        | Error err -> Error err
+      | [] -> Ok (state |> Seq.ofList |> Seq.rev)
+
+    concat [] (results |> Seq.toList)
 
   /// <summary>
-  /// If all the Results are success, "unwraps" the successful values and passes them
+  /// If all the Results are ok, "unwraps" the ok values and passes them
   /// to the function given, returning the result of that function.  If any Result 
-  /// is failure, returns the first failure without calling the function given. 
+  /// is error, returns the first error without calling the function given. 
   /// </summary>
-  let BindAll onSuccess results = Result.bindAll (toFSharpFunc onSuccess) results
+  let BindAll onOk results = 
+    (concatResults results).Bind onOk
 
   /// <summary>
-  /// If all the Results are success, "unwraps" the successful values and passes it
-  /// to the function given, returning a Success with the result of that function.  
-  /// If the Result is failure, returns the failure without calling the function given. 
+  /// If all the Results are ok, "unwraps" the ok values and passes it
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If the Result is error, returns the error without calling the function given. 
   /// </summary>
-  let Map onSuccess result = Result.map (toFSharpFunc onSuccess) result
+  let Map onOk (result:Result<_,_>) = result.Map onOk
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful values and passes them
-  /// to the function given, returning a Success with the result of that function.  
-  /// If any Result is failure, returns the first failure without calling the function given. 
+  /// If the Result is ok, "unwraps" the ok values and passes them
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If any Result is error, returns the first error without calling the function given. 
   /// </summary>
-  let Map2 onSuccess result1 result2 = Result.map2 (toFSharpFunc2 onSuccess) result1 result2 
+  let Map2 (onOk:Func<'a, 'b, 'c>) result1 result2 = 
+    Bind2 (Func<'a, 'b, Result<'c, 'd>> (fun r1 r2 -> Ok (onOk.Invoke (r1, r2)))) result1 result2
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful values and passes them
-  /// to the function given, returning a Success with the result of that function.  
-  /// If any Result is failure, returns the first failure without calling the function given. 
+  /// If the Result is ok, "unwraps" the ok values and passes them
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If any Result is error, returns the first error without calling the function given. 
   /// </summary>
-  let Map3 onSuccess result1 result2 result3 = 
-    Result.map3 (toFSharpFunc3 onSuccess) result1 result2 result3 
+  let Map3 (onOk:Func<'a, 'b, 'c, 'd>) result1 result2 result3 = 
+    Bind3 (Func<'a, 'b, 'c, Result<'d, 'e>> (fun r1 r2 r3 -> Ok (onOk.Invoke (r1, r2, r3)))) 
+      result1 result2 result3
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful values and passes them
-  /// to the function given, returning a Success with the result of that function.  
-  /// If any Result is failure, returns the first failure without calling the function given. 
+  /// If the Result is ok, "unwraps" the ok values and passes them
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If any Result is error, returns the first error without calling the function given. 
   /// </summary>
-  let Map4 onSuccess result1 result2 result3 result4 = 
-    Result.map4 (toFSharpFunc4 onSuccess) result1 result2 result3 result4
+  let Map4 (onOk:Func<'a, 'b, 'c, 'd, 'e>) result1 result2 result3 result4 = 
+    Bind4 (Func<'a, 'b, 'c, 'd, Result<'e, 'f>> (fun r1 r2 r3 r4 -> Ok (onOk.Invoke (r1, r2, r3, r4)))) 
+      result1 result2 result3 result4
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful values and passes them
-  /// to the function given, returning a Success with the result of that function.  
-  /// If any Result is failure, returns the first failure without calling the function given. 
+  /// If the Result is ok, "unwraps" the ok values and passes them
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If any Result is error, returns the first error without calling the function given. 
   /// </summary>
-  let MapAll onSuccess results = Result.mapAll (toFSharpFunc onSuccess) results
+  let MapAll onOk results = 
+    (concatResults results).Map onOk
 
   /// <summary>
-  /// Creates a new successful Result with the value given 
+  /// Creates a new ok Result with the value given 
   /// </summary>
-  let Success<'tVal, 'tErr> v : Result<'tVal, 'tErr> = Success v
+  let Ok<'tVal, 'tErr> v : Result<'tVal, 'tErr> = Ok v
 
   /// <summary>
-  /// Creates a new failure Result with the error object given 
+  /// Creates a new error Result with the error object given 
   /// </summary>
-  let Failure<'tVal, 'tErr> v : Result<'tVal, 'tErr> = Failure v
+  let Error<'tVal, 'tErr> v : Result<'tVal, 'tErr> = Error v
+
+  let FromFs v = 
+    match v with
+    | Microsoft.FSharp.Core.Ok ok -> Ok ok
+    | Microsoft.FSharp.Core.Error err -> Error err

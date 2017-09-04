@@ -1,7 +1,7 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,10 +9,6 @@
     <Compile Include="Result.fs" />
     <Compile Include="FsResultModule.fs" />
     <Compile Include="CsResultModule.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.1.*" />
   </ItemGroup>
 
 </Project>

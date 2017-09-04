@@ -4,101 +4,107 @@ open System
 
 /// <summary>
 /// Represents the outcome of a calculation that could have failed.
-/// For example, a divide function might return a Result, with a Failure
-/// if the denominator was 0, and a Success in any other case.
-/// Result is a union of Success<tVal> and Failure<tErr>.   
+/// For example, a divide function might return a Result, with an Error
+/// if the denominator was 0, and an Ok in any other case.
+/// Result is a union of Ok<tVal> and Error<tErr>.   
 /// tVal represents the type of the expected result, and tErr represents
 /// the type used to represent the error (such as a string if just using
 /// error messages)
 /// </summary>
-type Result<'tVal, 'tErr> =
-  | Success of 'tVal
-  | Failure of 'tErr
+type Result<'tVal, 'tErr> = 
+  | Ok of 'tVal
+  | Error of 'tErr
 
    
   /// <summary>
-  /// "Unwraps" the successful value or the error object and passes it 
+  /// "Unwraps" the ok value or the error object and passes it 
   /// to the function passed in.
-  /// Takes two Funcs: one to execute if the result is successful, and one
-  /// to execute if the result is a failure.  Returns the result of executing
+  /// Takes two Funcs: one to execute if the result is ok, and one
+  /// to execute if the result is an error.  Returns the result of executing
   /// the appropriate function.
   /// </summary>
-  member this.Match (success:Func<'tVal, 'a>, failure:Func<'tErr, 'a>) =
+  member this.Match (ok:Func<'tVal, 'a>, error:Func<'tErr, 'a>) =
     match this with
-    | Success v -> success.Invoke v
-    | Failure err -> failure.Invoke err
+    | Ok v -> ok.Invoke v
+    | Error err -> error.Invoke err
 
   /// <summary>
-  /// "Unwraps" the successful value or the error object and passes it 
+  /// "Unwraps" the ok value or the error object and passes it 
   /// to the function passed in.
-  /// Takes two Actions: one to execute if the result is successful, and one 
-  /// to execute if the result is a failure.
+  /// Takes two Actions: one to execute if the result is ok, and one 
+  /// to execute if the result is an error.
   /// </summary>
-  member this.Match (success:Action<'tVal>, failure:Action<'tErr>) =
+  member this.Match (ok:Action<'tVal>, error:Action<'tErr>) =
     this.Match (
-      Func<'tVal, unit> success.Invoke,
-      Func<'tErr, unit> failure.Invoke)
+      Func<'tVal, unit> ok.Invoke,
+      Func<'tErr, unit> error.Invoke)
 
   /// <summary>
-  /// If the Result is successful, "unwraps" the successful value and passes it 
-  /// to the function passed in.  Does nothing if the Result is a failure
+  /// If the Result is ok, "unwraps" the ok value and passes it 
+  /// to the function passed in.  Does nothing if the Result is an error
   /// </summary>
-  member this.IfSuccess (success:Action<'tVal>) =
-    this.Match (success, ignore)
+  member this.IfOk (ok:Action<'tVal>) =
+    this.Match (ok, ignore)
 
   /// <summary>
-  /// If the Result is failure, "unwraps" the error object and passes it 
-  /// to the function passed in.  Does nothing if the Result is a success
+  /// If the Result is error, "unwraps" the error object and passes it 
+  /// to the function passed in.  Does nothing if the Result is an ok
   /// </summary>
-  member this.IfFailure (failure:Action<'tErr>) =
-    this.Match (ignore, failure)
+  member this.IfError (error:Action<'tErr>) =
+    this.Match (ignore, error)
 
   /// <summary>
-  /// If the result is failure, returns the defaultValue passed in.  If 
-  /// the result is success, "unwraps" the successful value and returns it.
+  /// If the result is error, returns the defaultValue passed in.  If 
+  /// the result is ok, "unwraps" the ok value and returns it.
   /// </summary>
   member this.OkOrElse defaultValue =
     match this with
-    | Success v -> v
-    | Failure _ -> defaultValue
+    | Ok v -> v
+    | Error _ -> defaultValue
 
   /// <summary>
-  /// If the result is failure, returns the result of the defaultValueFunc 
-  /// passed in.  If the result is success, "unwraps" the successful value
+  /// If the result is error, returns the result of the defaultValueFunc 
+  /// passed in.  If the result is ok, "unwraps" the ok value
   /// and returns it.
   /// </summary>
   member this.OkOrElse (defaultValueFunc:Func<'tVal>) =
     match this with
-    | Success v -> v
-    | Failure _ -> defaultValueFunc.Invoke ()
+    | Ok v -> v
+    | Error _ -> defaultValueFunc.Invoke ()
 
   /// <summary>
-  /// If the result is failure, returns the result of the defaultValueFunc 
-  /// passed in.  If the result is success, "unwraps" the successful value
+  /// If the result is error, returns the result of the defaultValueFunc 
+  /// passed in.  If the result is ok, "unwraps" the ok value
   /// and returns it.
   /// </summary>
   member this.OkOrElse (defaultValueFunc:Func<'tErr, 'tVal>) =
     match this with
-    | Success v -> v
-    | Failure err -> defaultValueFunc.Invoke err
+    | Ok v -> v
+    | Error err -> defaultValueFunc.Invoke err
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful value and passes it
+  /// If the Result is ok, "unwraps" the ok value and passes it
   /// to the function given, returning the result of that function.  If the 
-  /// Result is failure, returns the failure without calling the function given. 
+  /// Result is error, returns the error without calling the function given. 
   /// </summary>
-  member this.Bind (onSuccess:Func<'tVal, Result<'a, 'tErr>>) =
+  member this.Bind (onOk:Func<'tVal, Result<'a, 'tErr>>) =
     match this with
-    | Success v -> onSuccess.Invoke v
-    | Failure err -> Failure err
+    | Ok v -> onOk.Invoke v
+    | Error err -> Error err
 
   /// <summary>
-  /// If the Result is success, "unwraps" the successful value and passes it
-  /// to the function given, returning a Success with the result of that function.  
-  /// If the Result is failure, returns the failure without calling the function given. 
+  /// If the Result is ok, "unwraps" the ok value and passes it
+  /// to the function given, returning an Ok with the result of that function.  
+  /// If the Result is error, returns the error without calling the function given. 
   /// </summary>
-  member this.Map (onSuccess:Func<'tVal, 'a>) = 
+  member this.Map (onOk:Func<'tVal, 'a>) = 
     match this with
-    | Success v -> Success (onSuccess.Invoke v)
-    | Failure err -> Failure err
+    | Ok v -> Ok (onOk.Invoke v)
+    | Error err -> Error err
 
+  member this.ToFs () = 
+    match this with
+    | Ok v -> FSharp.Core.Ok v
+    | Error err -> FSharp.Core.Error err
+
+    
