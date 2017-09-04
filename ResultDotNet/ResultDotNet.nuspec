@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>ResultDotNet</id>
-    <version>1.1.3</version>
+    <version>1.2.1</version>
     <authors>nathan wilson</authors>
     <owners>nathan wilson</owners>
     <projectUrl>https://github.com/ntwilson/result-dotnet</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Result type for C# and F#</description>
-    <releaseNotes>Adds XML comments.  See the readme</releaseNotes>
+    <releaseNotes>See the readme</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>result functional error handling</tags>
   </metadata>

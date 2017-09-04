@@ -54,6 +54,35 @@ type Result<'tVal, 'tErr> =
     this.Match (ignore, failure)
 
   /// <summary>
+  /// If the result is failure, returns the defaultValue passed in.  If 
+  /// the result is success, "unwraps" the successful value and returns it.
+  /// </summary>
+  member this.OkOrElse defaultValue =
+    match this with
+    | Success v -> v
+    | Failure _ -> defaultValue
+
+  /// <summary>
+  /// If the result is failure, returns the result of the defaultValueFunc 
+  /// passed in.  If the result is success, "unwraps" the successful value
+  /// and returns it.
+  /// </summary>
+  member this.OkOrElse (defaultValueFunc:Func<'tVal>) =
+    match this with
+    | Success v -> v
+    | Failure _ -> defaultValueFunc.Invoke ()
+
+  /// <summary>
+  /// If the result is failure, returns the result of the defaultValueFunc 
+  /// passed in.  If the result is success, "unwraps" the successful value
+  /// and returns it.
+  /// </summary>
+  member this.OkOrElse (defaultValueFunc:Func<'tErr, 'tVal>) =
+    match this with
+    | Success v -> v
+    | Failure err -> defaultValueFunc.Invoke err
+
+  /// <summary>
   /// If the Result is success, "unwraps" the successful value and passes it
   /// to the function given, returning the result of that function.  If the 
   /// Result is failure, returns the failure without calling the function given. 

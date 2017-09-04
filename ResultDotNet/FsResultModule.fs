@@ -144,3 +144,9 @@ module Result =
   /// to the function passed in.  Does nothing if the Result is a success
   /// </summary>
   let ifFailure failure (result:Result<_,_>) = result.IfFailure (Action<_> failure)
+
+  let defaultValue (value:'a) (result:Result<'a,_>) = 
+    result.OkOrElse value
+
+  let defaultWith (valueF:'b -> 'a) (result:Result<'a,'b>) =
+    result.OkOrElse (toCSharpFunc valueF)
