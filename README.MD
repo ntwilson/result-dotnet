@@ -50,15 +50,17 @@ string pricePerUnitForDisplay(Invoice invoice) {
   }
 }
 ```
-Following the same idea, you could use a package for pattern matching, such as Ifp.PatternMatching, to write something like:
+Following the same idea, you could use pattern matching from C# 7, to write something like:
 ```C#
 using ResultDotNet;
-using PatternMatching;
 ...
 string pricePerUnitForDisplay(Invoice invoice) =>
-  Pattern.Match<Result<double, string>, string>(divide(invoice.Total, invoice.NumberOfUnits))
-    .Case<Result<double, string>.Ok>(div => div.Item.ToString())
-    .Case<Result<double, string>.Error>(err => $"N/A: {err.Item}");
+  var ans = divide(invoice.Total, invoice.NumberOfUnits);
+  if (ans is Result<double,string>.Ok div) 
+    return div.Item.ToString();
+  else if (ans is Result<double,string>.Error err)
+    return $"N/A: {err.Item}";
+  else ...
 ```
 
 #### map and bind as members
@@ -73,6 +75,19 @@ Result<double, string> savingsPerUnit(Invoice invoice, double dollarsOff) =>
 Result<double, string> pricePerUnitWithDiscount(Invoice invoice, double dollarsOffPerUnit) =>
   pricePerUnit(invoice).Map(ppu => ppu - dollarsOffPerUnit);
 ```
+You can also use LINQ to build expressions using Results.  You can think of the Result a bit like a collection that contains the successful result when assembling a LINQ expression. It can often be more intuitive and readable, at the expense of being slightly more total code:
+```C#
+using ResultDotNet;
+...
+Result<double, string> pricePerUnit(Invoice invoice) => divide(invoice.Total, invoice.NumberOfUnits);
+Result<double, string> savingsPerUnit(Invoice invoice, double dollarsOff) =>
+  from ppu in pricePerUnit(invoice) 
+  from spu in divide(dollarsOff, ppu)
+  select spu;
+
+Result<double, string> pricePerUnitWithDiscount(Invoice invoice, double dollarsOffPerUnit) =>
+  from ppu in pricePerUnit(invoice) select ppu - dollarsOffPerUnit;
+``` 
 
 #### map and bind as functions
 map and bind themselves have static functions:

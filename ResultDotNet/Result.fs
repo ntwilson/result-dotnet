@@ -107,4 +107,8 @@ type Result<'tVal, 'tErr> =
     | Ok v -> FSharp.Core.Ok v
     | Error err -> FSharp.Core.Error err
 
-    
+  member this.SelectMany<'uVal, 'vVal> (func : Func<'tVal, Result<'uVal, 'tErr>>) (projection : Func<'tVal, 'uVal, 'vVal>) =
+    this.Bind (fun t -> (func.Invoke t).Map (fun u -> projection.Invoke (t, u)))
+
+  member this.Select<'u>(func : Func<'tVal, 'u>) =
+    this.Map func

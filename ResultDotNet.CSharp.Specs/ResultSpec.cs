@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResultDotNet;
 using static ResultDotNet.Result;
@@ -107,6 +108,21 @@ namespace ResultDotNet.CSharp.Specs {
 
             Result.FromFs(Error<int, string>("didn't work").ToFs()).ShouldBe(Error<int, string>("didn't work"));
             Result.FromFs(Ok<int, string>(10).ToFs()).ShouldBe(Ok<int, string>(10));
+        }
+
+        [TestMethod]
+        public void CanUseResultsInALinqExpression() {
+            (from a in Ok<int, string>(99)
+            from b in Ok<string, string>(" bottles of beer on the wall")
+            from c in Ok<string, string>(" bottles of beer")
+            select a.ToString() + b + ". " + a.ToString() + c)
+                .ShouldBe(Ok<string, string>("99 bottles of beer on the wall. 99 bottles of beer"));
+
+            (from a in Ok<int, string>(99)
+            from b in Ok<string, string>(" bottles of beer on the wall")
+            from c in Error<string, string>("Dropped one!")
+            select a.ToString() + b + ". " + a.ToString() + c)
+                .ShouldBe(Error<string, string>("Dropped one!"));
         }
     }
 }
