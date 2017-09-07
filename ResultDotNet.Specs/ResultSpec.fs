@@ -212,3 +212,12 @@ module ResultSpec =
       let y = 10
       return! add' x y }
     |> shouldBe (Ok 15)
+
+  [<Fact>]
+  let ``can use a default value for a failed result`` () =
+    Error "didn't work" |> Result.defaultValue 10 |> shouldBe 10
+    Ok "yay" |> Result.defaultValue "it didn't work" |> shouldBe "yay"
+
+    Error "didn't work" |> Result.defaultWith (fun _ -> 10) |> shouldBe 10
+    Ok "yay" |> Result.defaultWith (fun _ -> "it didn't work") |> shouldBe "yay"
+    

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResultDotNet;
 using static ResultDotNet.Result;
+using Microsoft.FSharp.Core;
 
 namespace ResultDotNet.CSharp.Specs {
     [TestClass]
@@ -88,6 +89,24 @@ namespace ResultDotNet.CSharp.Specs {
                 Ok<string, string>(" bottles of beer on the wall"),
                 Ok<string, string>(" bottles of beer"))
             .ShouldBe(Ok<string, string>("99 bottles of beer on the wall. 99 bottles of beer"));
+        }
+
+        [TestMethod]
+        public void CanUseADefaultValueForAFailedResult() {
+            Error<int, string>("didn't work").OkOrElse(10).ShouldBe(10);
+            Ok<string, string>("yay").OkOrElse("it didn't work").ShouldBe("yay");
+
+            Error<int, string>("didn't work").OkOrElse(() => 10).ShouldBe(10);
+            Ok<string, string>("yay").OkOrElse(() => "it didn't work").ShouldBe("yay");
+        }
+
+        [TestMethod]
+        public void CanConvertToAndFromAnFSharpResult() {
+            Error<int, string>("didn't work").ToFs().ShouldBe(FSharpResult<int, string>.NewError("didn't work"));
+            Ok<int, string>(10).ToFs().ShouldBe(FSharpResult<int, string>.NewOk(10));
+
+            Result.FromFs(Error<int, string>("didn't work").ToFs()).ShouldBe(Error<int, string>("didn't work"));
+            Result.FromFs(Ok<int, string>(10).ToFs()).ShouldBe(Ok<int, string>(10));
         }
     }
 }
