@@ -36,7 +36,24 @@ string pricePerUnitForDisplay(Invoice invoice) =>
     ok: ppu => ppu.ToString(),
     error: err => $"N/A: {err}");
 ```
+Sometimes you end up with a `Result<TVal, TErr>`, but you really just want the value, and the program should crash if the Result is an Error.  Now you could do this with a regular Match statement:
+
+```c#
+var value = result.Match(
+  ok: val => val
+  err: { throw new ResultExpectedException("Something went wrong"); });
+```
+
+But we provide a method just for doing that more conveniently:
+
+```c#
+var value = result.Unless("Something went wrong");
+```
+
+(And if you track code coverage, you don't even need to assemble a test with the error condition to get full code coverage).
+
 Result is a union of types `Result<tVal, tErr>.Ok` and `Result<tVal, tErr>.Error` (`Result<tVal,tErr>` itself is abstract, and has the two unioned types as concrete child classes), so you can also manually check the types:
+
 ```C#
 using ResultDotNet;
 ...
@@ -63,7 +80,10 @@ string pricePerUnitForDisplay(Invoice invoice) =>
   else ...
 ```
 
+
+
 #### map and bind as members
+
 (I apologize for the *totally* contrived examples)
 ```C#
 using ResultDotNet;
@@ -87,7 +107,7 @@ Result<double, string> savingsPerUnit(Invoice invoice, double dollarsOff) =>
 
 Result<double, string> pricePerUnitWithDiscount(Invoice invoice, double dollarsOffPerUnit) =>
   from ppu in pricePerUnit(invoice) select ppu - dollarsOffPerUnit;
-``` 
+```
 
 #### map and bind as functions
 map and bind themselves have static functions:
@@ -129,7 +149,10 @@ result.Match(
   error: err => logger.Log($"DB query FAILED: {sql}"));
 ```
 
+#### 
+
 ### from F&#35;
+
 Since Result uses many higher order functions, using the C# interface doesn't interop well with F# (since F# prefers `FSharpFunc`s instead of `System.Func`s).
 To make usage from F# easier, there's a ResultDotNet.FSharp namespace that shadows the Result module with one that uses F#-friendly functions 
 #### creating a Result<'tVal, 'tErr>
@@ -153,7 +176,25 @@ let pricePerUnitForDisplay invoice =
   | Error err -> "N/A: " + err
 ```
 
+Sometimes you end up with a `Result<'tVal, 'tErr>`, but you really just want the value, and the program should crash if the Result is an Error.  Now you could do this with a regular Match statement:
+
+```c#
+let value = 
+  match result with
+  | Ok val -> val
+  | Error err -> raise (ResultExpectedException("Something went wrong"))
+```
+
+But we provide a method just for doing that more conveniently:
+
+```c#
+let value = result |> Result.unless("Something went wrong");
+```
+
+(And if you track code coverage, you don't even need to assemble a test with the error condition to get full code coverage).
+
 #### map and bind as members
+
 (I apologize for the *totally* contrived examples)
 ```F#
 open ResultDotNet
@@ -199,13 +240,13 @@ open ResultDotNet.FSharp
 type Invoice = { Total:float; NumberOfUnits:float }
 let pricePerUnit invoice = divide invoice.Total invoice.NumberOfUnits
 let savingsPerUnit invoice dollarsOff =
-  Result.expr {
+  result {
     let! ppu = pricePerUnit invoice
     return! divide dollarsOff ppu
   }
 
 let pricePerUnitWithDiscount invoice dollarsOffPerUnit =
-  Result.expr {
+  result {
     let! ppu = pricePerUnit invoice
     return ppu - dollarsOffPerUnit
   }
@@ -218,7 +259,7 @@ type Invoice = { Total:float; NumberOfUnits:float }
 let newInvoice total numberOfUnits = { Total = total; NumberOfUnits = numberOfUnits }
 
 let createInvoice (total:Result<double, string>) (numberOfUnits:Result<double, string>) =
-  Result.expr {
+  result {
     let! t = total
     let! n = numberOfUnits
     return newInvoice t n

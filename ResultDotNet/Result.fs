@@ -2,6 +2,16 @@ namespace ResultDotNet
 
 open System
 
+[<AutoOpen>]
+module private ResultExceptionMessageHelper = 
+  let inline formatExceptionMessage msg (err:obj) = 
+    sprintf "%s%sResult error details: %s" msg Environment.NewLine (string err)  
+
+type ResultExpectedException<'T> (msg:string, err:'T) =
+  inherit Exception (formatExceptionMessage msg err)
+
+  member this.ErrorDetails = err
+
 /// <summary>
 /// Represents the outcome of a calculation that could have failed.
 /// For example, a divide function might return a Result, with an Error
@@ -112,3 +122,8 @@ type Result<'tVal, 'tErr> =
 
   member this.Select<'u>(func : Func<'tVal, 'u>) =
     this.Map func
+
+  member this.Unless (msg) =
+    match this with
+    | Ok v -> v
+    | Error err -> raise (ResultExpectedException (msg, err))   

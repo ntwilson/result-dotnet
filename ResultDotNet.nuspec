@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ResultDotNet</id>
+    <version>2.0.3</version>
+    <authors>nathan wilson</authors>
+    <owners>nathan wilson</owners>
+    <description>Result type for C# and F#</description>
+    <releaseNotes>Add an Unless method (see the readme)</releaseNotes>
+    <projectUrl>https://github.com/ntwilson/result-dotnet</projectUrl>
+    <licenseUrl>https://github.com/ntwilson/result-dotnet/blob/master/LICENSE</licenseUrl>
+    <tags>result functional error handling</tags>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright 2018</copyright>
+
+    <dependencies>
+      <dependency id="FSharp.Core" version="4.1.17" />
+    </dependencies>
+  </metadata>
+
+  <files>
+    <file src="..\README.md" target="" />
+    <file src="bin\Release\netstandard2.0\ResultDotNet.dll" target="lib\netstandard2.0" />
+    <file src="bin\Release\netstandard2.0\ResultDotNet.XML" target="lib\netstandard2.0" />
+    <file src="bin\Release\netstandard2.0\ResultDotNet.pdb" target="lib\netstandard2.0" />
+    <file src="bin\Release\net45\ResultDotNet.dll" target="lib\net45" />
+    <file src="bin\Release\net45\ResultDotNet.XML" target="lib\net45" />
+    <file src="bin\Release\net45\ResultDotNet.pdb" target="lib\net45" />
+    <file src="**\*.fs" target="src" />
+    <file src="**\*.cs" target="src" />
+  </files>
+</package>
