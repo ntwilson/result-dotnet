@@ -141,7 +141,18 @@ module Result =
     | Ok v -> v
     | Error err -> valueF err
 
+  /// If the Result is Ok, "unwraps" the result and returns it.
+  /// If the Result is Error, throws a ResultExpectedException containing the 
+  /// specified message along with the error details
   let unless msg result = 
     match result with
     | Ok v -> v
     | Error err -> raise (ResultDotNet.ResultExpectedException (msg, err))
+
+  /// If the Result is Ok, "unwraps" the result and returns it.
+  /// If the Result is Error, throws a ResultExpectedException containing the 
+  /// error details
+  let expect result = 
+    match result with
+    | Ok v -> v
+    | Error err -> raise (ResultDotNet.ResultExpectedException err)

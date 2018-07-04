@@ -52,6 +52,14 @@ var value = result.Unless("Something went wrong");
 
 (And if you track code coverage, you don't even need to assemble a test with the error condition to get full code coverage).
 
+We also provide a method for cases where there's no need to provide an additional message, the error type speaks for itself:
+
+```C#
+var session = tryLogin(username, password).Expect();
+```
+
+
+
 Result is a union of types `Result<tVal, tErr>.Ok` and `Result<tVal, tErr>.Error` (`Result<tVal,tErr>` itself is abstract, and has the two unioned types as concrete child classes), so you can also manually check the types:
 
 ```C#
@@ -185,13 +193,21 @@ let value =
   | Error err -> raise (ResultExpectedException("Something went wrong"))
 ```
 
-But we provide a method just for doing that more conveniently:
+But we provide a function just for doing that more conveniently:
 
 ```c#
 let value = result |> Result.unless("Something went wrong");
 ```
 
 (And if you track code coverage, you don't even need to assemble a test with the error condition to get full code coverage).
+
+We also provide a function for cases where there's no need to provide an additional message, the error type speaks for itself:
+
+```F#
+let session = tryLogin username password |> Result.expect
+```
+
+
 
 #### map and bind as members
 

@@ -137,13 +137,26 @@ namespace ResultDotNet.CSharp.Specs {
     }
 
     [TestMethod]
-    public void UnlessCanExtractTheValueFromAResult() {
+    public void UnlessCanExtractTheValueFromAResultWithAMessage() {
       Ok<int, string>(99).Unless("Expected to be able to extract a value from an Ok Result")
         .ShouldBe(99);
       
       var ex = expectException(() => Error<int, string>("Didn't work").Unless("Can't find"));
         
       ex.Message.ShouldSatisfy(it => it.Contains("Didn't work") && it.Contains("Can't find"));
+      
+      if (ex is ResultExpectedException<string> rex) rex.ErrorDetails.ShouldBe("Didn't work");
+      else throw new AssertFailedException($"Expected a ResultExpectedException, but got a {ex.GetType().FullName}.");
+    }
+
+    [TestMethod]
+    public void ExpectCanExtractTheValueFromAResultWithoutAMessage() {
+      Ok<int, string>(99).Expect()
+        .ShouldBe(99);
+      
+      var ex = expectException(() => Error<int, string>("Didn't work").Expect());
+        
+      ex.Message.ShouldSatisfy(it => it.Contains("Didn't work"));
       
       if (ex is ResultExpectedException<string> rex) rex.ErrorDetails.ShouldBe("Didn't work");
       else throw new AssertFailedException($"Expected a ResultExpectedException, but got a {ex.GetType().FullName}.");

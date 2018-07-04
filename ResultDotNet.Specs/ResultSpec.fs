@@ -230,7 +230,7 @@ let expectException act =
 
   
 [<Test>]
-let ```unless` will extract the value from a Result`` () = 
+let ```unless` will extract the value from a Result with a message`` () = 
   Ok "yay" |> Result.unless "Expected to be able to extract a value from an Ok Result"
   |> shouldBe "yay"
 
@@ -239,6 +239,22 @@ let ```unless` will extract the value from a Result`` () =
       lazy (Error "Didn't work" |> Result.unless "Can't find"))
 
   ex.Message |> shouldSatisfy (fun s -> s.Contains "Didn't work" && s.Contains "Can't find")
+  match ex with
+  | :? ResultDotNet.ResultExpectedException<string> as rex -> 
+    rex.ErrorDetails |> shouldBe "Didn't work"
+  | _ -> 
+    raise (AssertionException (sprintf "Expected a ResultExpectedException, but got a %s" (ex.GetType().FullName)))
+
+[<Test>]
+let ```expect` will extract the value from a Result without a message`` () = 
+  Ok "yay" |> Result.expect
+  |> shouldBe "yay"
+
+  let ex = 
+    expectException (
+      lazy (Error "Didn't work" |> Result.expect))
+
+  ex.Message |> shouldSatisfy (fun s -> s.Contains "Didn't work")
   match ex with
   | :? ResultDotNet.ResultExpectedException<string> as rex -> 
     rex.ErrorDetails |> shouldBe "Didn't work"
