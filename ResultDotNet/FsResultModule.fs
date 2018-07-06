@@ -156,3 +156,18 @@ module Result =
     match result with
     | Ok v -> v
     | Error err -> raise (ResultDotNet.ResultExpectedException err)
+
+  let ofOption err opt = 
+    match opt with
+    | Some v -> Ok v
+    | None -> Error err
+
+  let ofOptionWith errThunk opt = 
+    match opt with
+    | Some v -> Ok v
+    | None -> Error (errThunk ())
+
+  let toOption result = 
+    match result with
+    | Ok v -> Some v
+    | Error _ -> None  

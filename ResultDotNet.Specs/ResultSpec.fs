@@ -261,3 +261,33 @@ let ```expect` will extract the value from a Result without a message`` () =
   | _ -> 
     raise (AssertionException (sprintf "Expected a ResultExpectedException, but got a %s" (ex.GetType().FullName)))
 
+type SampleErr = Catchable of string
+type NotCatchableErr = NotCatchable of string
+
+[<Test>]
+let ``expecting a result still lets you catch specific exceptions`` () =
+  try 
+      Error (Catchable "didn't work") |> Result.expect
+      false  
+    with  
+    | :? ResultDotNet.ResultExpectedException<SampleErr> as ex -> true
+  |> shouldBe true
+
+  expectException
+    (lazy 
+      ( try Error (NotCatchable "didn't work") |> Result.expect with
+        | :? ResultDotNet.ResultExpectedException<SampleErr> as ex -> false))
+  |> ignore
+
+[<Test>]
+let ``can convert to and from an option`` () = 
+  Some 4 |> Result.ofOption "didn't work" |> shouldBe (Ok 4)
+  Some 4 |> Result.ofOptionWith (fun() -> failwith "shouldn't have run this thunk") 
+  |> shouldBe (Ok 4)
+
+  None |> Result.ofOption "didn't work" |> shouldBe (Error "didn't work")
+  None |> Result.ofOptionWith (fun() -> "didn't work") |> shouldBe (Error "didn't work")
+
+  Ok 4 |> Result.toOption |> shouldBe (Some 4)
+  Error "didn't work" |> Result.toOption |> shouldBe None
+  
