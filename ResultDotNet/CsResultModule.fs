@@ -91,6 +91,4 @@ module Result =
   /// Converts an FSharpResult type to a ResultDotNet Result type.  Used for interoping between
   /// C# and F# codebases. 
   let FromFs v = 
-    match v with
-    | Microsoft.FSharp.Core.Ok ok -> Ok ok
-    | Microsoft.FSharp.Core.Error err -> Error err
+    ResultDotNet.FSharp.Result.toCs v

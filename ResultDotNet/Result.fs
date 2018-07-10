@@ -124,6 +124,14 @@ type Result<'tVal, 'tErr> =
     | Error err -> raise (ResultExpectedException (msg, err))   
 
   /// If the Result is Ok, "unwraps" the result and returns it.
+  /// If the Result is Error, throws a ResultExpectedException with a message 
+  /// produced by the input function along with the error details
+  member this.Unless (msg) = 
+    match this with
+    | Ok v -> v
+    | Error err -> raise (ResultExpectedException (msg err, err))
+
+  /// If the Result is Ok, "unwraps" the result and returns it.
   /// If the Result is Error, throws a ResultExpectedException containing the 
   /// the error details
   member this.Expect () = 

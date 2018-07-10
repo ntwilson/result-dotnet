@@ -150,12 +150,32 @@ module Result =
     | Error err -> raise (ResultDotNet.ResultExpectedException (msg, err))
 
   /// If the Result is Ok, "unwraps" the result and returns it.
+  /// If the Result is Error, throws a ResultExpectedException with a message 
+  /// produced by the input function along with the error details
+  let unlessErr msg result =
+    match result with
+    | Ok v -> v
+    | Error err -> raise (ResultDotNet.ResultExpectedException (msg err, err))
+
+  /// If the Result is Ok, "unwraps" the result and returns it.
   /// If the Result is Error, throws a ResultExpectedException containing the 
   /// error details
   let expect result = 
     match result with
     | Ok v -> v
     | Error err -> raise (ResultDotNet.ResultExpectedException err)
+
+  /// Converts a ResultDotNet Result type to an FSharpResult type.  Used for interoping between
+  /// C# and F# codebases. 
+  let ofCs (result:ResultDotNet.Result<_,_>) = 
+    result.ToFs()
+
+  /// Converts an FSharpResult type to a ResultDotNet Result type.  Used for interoping between
+  /// C# and F# codebases. 
+  let toCs result = 
+    match result with
+    | Ok ok -> ResultDotNet.Result.Ok ok
+    | Error err -> ResultDotNet.Result.Error err
 
   let ofOption err opt = 
     match opt with
