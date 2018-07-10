@@ -126,10 +126,10 @@ type Result<'tVal, 'tErr> =
   /// If the Result is Ok, "unwraps" the result and returns it.
   /// If the Result is Error, throws a ResultExpectedException with a message 
   /// produced by the input function along with the error details
-  member this.Unless (msg) = 
+  member this.Unless (msg:Func<'tErr, string>) = 
     match this with
     | Ok v -> v
-    | Error err -> raise (ResultExpectedException (msg err, err))
+    | Error err -> raise (ResultExpectedException (msg.Invoke err, err))
 
   /// If the Result is Ok, "unwraps" the result and returns it.
   /// If the Result is Error, throws a ResultExpectedException containing the 
