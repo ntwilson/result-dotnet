@@ -290,4 +290,21 @@ let ``can convert to and from an option`` () =
 
   Ok 4 |> Result.toOption |> shouldBe (Some 4)
   Error "didn't work" |> Result.toOption |> shouldBe None
+
+[<Test>]
+let ``Can tell if a Result is Ok or Error`` () = 
+  Error 5 |> Result.isError |> shouldBe true
+  Error 5 |> Result.isOk |> shouldBe false
+
+  Ok 5 |> Result.isOk |> shouldBe true
+  Ok 5 |> Result.isError |> shouldBe false
+
+[<Test>]
+let ``collects sequences of Results into a Result of a sequence of values`` () =
+  Result.collect [Ok 1; Ok 2; Ok 3] |> Result.map Seq.toList 
+  |> shouldBe (Ok [1; 2; 3])
   
+  Result.collect [Ok 1; Error "didn't"; Error "work"] |> Result.mapError Seq.toList 
+  |> shouldBe (Error ["didn't"; "work"])
+
+

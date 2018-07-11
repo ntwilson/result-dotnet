@@ -54,6 +54,23 @@ module Result =
       return! onOk r1 r2 r3 r4
     }
 
+  /// Collects a sequence of Results into a single Result of the sequence of values.
+  /// If all of the Results are Ok, returns an Ok of the sequence of contained values.  
+  /// If any of the Results are Error, returns an Error of the sequence of contained 
+  /// Errors (and throws away any Ok values). 
+  /// <c>collect [Ok 1; Ok 2; Ok 3]</c> would return <c>Ok [1; 2; 3]</c>, but 
+  /// <c>collect [Ok 1; Error "err"; Error "fail"]</c> would return <c>Error ["err"; "fail"]</c>
+  let collect results =
+    Seq.fold 
+      (fun state element -> 
+        match state, element with
+        | (Ok xs, Ok x) -> Ok (Seq.append xs [x])
+        | (Ok _, Error x) -> Error (seq [x]) 
+        | (Error xs, Error x) -> Error (Seq.append xs [x])
+        | (Error xs, Ok _) -> Error xs)
+      (Ok (seq []))
+      results
+
   let private concatResults results =
     let rec concat state rs =
       match rs with
@@ -111,6 +128,12 @@ module Result =
   let mapAll onOk results = 
     concatResults results
     |> Result.map onOk
+
+  /// Returns true when given a Result that is Ok, and false when given a Result that is Error.
+  let isOk = function | Ok _ -> true | Error _ -> false
+
+  /// Returns true when given a Result that is Error, and false when given a Result that is Ok.
+  let isError = function | Error _ -> true | Ok _ -> false 
 
   /// If the Result is ok, "unwraps" the ok value and passes it 
   /// to the function passed in.  Does nothing if the Result is an error

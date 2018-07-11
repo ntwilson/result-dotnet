@@ -92,3 +92,5 @@ module Result =
   /// C# and F# codebases. 
   let FromFs v = 
     ResultDotNet.FSharp.Result.toCs v
+
+  let Collect results = ResultDotNet.FSharp.Result.collect results |> FromFs
