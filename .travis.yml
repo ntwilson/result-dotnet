@@ -1,0 +1,7 @@
+language: csharp
+solution: ResultDotNet.sln
+mono: none
+dotnet: 2.1.502
+script:
+  - dotnet build -f netcoreapp2.0
+  - dotnet test -f netcoreapp2.0

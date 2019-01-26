@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ntwilson/result-dotnet.svg?branch=master)](https://travis-ci.com/ntwilson/result-dotnet)
+
 # ResultDotNet
 This library adds a Result class for FP-style error handling in C#.
 
