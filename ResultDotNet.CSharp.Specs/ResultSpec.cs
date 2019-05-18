@@ -69,6 +69,15 @@ namespace ResultDotNet.CSharp.Specs {
     }
 
     [TestMethod]
+    public void MapErrorMemberShouldTransformErrorsButLeaveOkResultsTheSame() { 
+      Error<string, int>(5).MapError(i => i + 3)
+      .ShouldBe(Error<string, int>(8));
+
+      Ok<string, int>("didn't work").MapError(i => i + 3)
+      .ShouldBe(Ok<string, int>("didn't work"));
+    }
+
+    [TestMethod]
     public void BindMemberShouldWorkWithResultFuncs() {
       Ok<int, string>(5).Bind(i => Ok<int, string>(i + 3))
       .ShouldBe(Ok<int,string>(8));
@@ -160,6 +169,11 @@ namespace ResultDotNet.CSharp.Specs {
       
       if (ex is ResultExpectedException<string> rex) rex.ErrorDetails.ShouldBe("Didn't work");
       else throw new AssertFailedException($"Expected a ResultExpectedException, but got a {ex.GetType().FullName}.");
+    }
+
+    [TestMethod]
+    public void FSharpResultsHaveAnExtensionMethodToConvertToTheCSharpResultType() { 
+      FSharpResult<int, string>.NewOk(5).ToCs().ShouldSatisfy(it => it is Result<int, string>);
     }
   }
 }
