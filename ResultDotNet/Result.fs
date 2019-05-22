@@ -16,6 +16,8 @@ type ResultExpectedException<'T> (msg:string, err:'T) =
        err)
   member this.ErrorDetails = err
 
+type ErrorWithContext<'a> = { Error : 'a; Context : string list }
+
 /// <summary>
 /// Represents the outcome of a calculation that could have failed.
 /// For example, a divide function might return a Result, with an Error
@@ -181,3 +183,15 @@ type Result<'tVal, 'tErr> =
     match this with
     | Ok v -> v
     | Error err -> raise (ResultExpectedException err)
+
+open System.Runtime.CompilerServices
+[<Extension>]
+type ResultExtensions private () = 
+
+  [<Extension>]
+  static member AddContext (result:Result<'a, ErrorWithContext<'b>>, contextStr) = 
+    result.MapError(fun ({Context = context} as error) -> { error with Context = contextStr :: context })
+
+  [<Extension>]
+  static member AddContext (result:Result<'a, 'b>, contextStr) = 
+    result.MapError(fun e -> { Error = e; Context = [contextStr] })

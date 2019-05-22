@@ -175,5 +175,19 @@ namespace ResultDotNet.CSharp.Specs {
     public void FSharpResultsHaveAnExtensionMethodToConvertToTheCSharpResultType() { 
       FSharpResult<int, string>.NewOk(5).ToCs().ShouldSatisfy(it => it is Result<int, string>);
     }
+    
+    class PretendError {}
+
+    [TestMethod]
+    public void IsEasyToAddContextToResultErrors() {
+      Result<int, PretendError> x = Error<int, PretendError>(new PretendError());
+      Result<int, ErrorWithContext<PretendError>> y = x.AddContext("this error is totally pretend");
+      Result<int, ErrorWithContext<PretendError>> z = y.AddContext("really, really pretend");
+
+      z.Match(
+        error: e => e.Context.ShouldSatisfy(xs => xs[0] == "really, really pretend" && xs[1] == "this error is totally pretend"),
+        ok: _ => throw new AssertFailedException("should be error")
+      );
+    } 
   }
 }

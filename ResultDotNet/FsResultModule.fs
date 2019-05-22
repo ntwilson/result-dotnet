@@ -23,7 +23,17 @@ module ResultExpression =
 /// </summary>
 module Result =
   open System
-  
+
+  let createContext errContext result = 
+    result
+    |> Result.mapError (fun e -> 
+      { ResultDotNet.ErrorWithContext.Error = e; ResultDotNet.ErrorWithContext.Context = [errContext] })
+
+  let addContext newContext result = 
+    result
+    |> Result.mapError (fun ({ ResultDotNet.ErrorWithContext.Context = context } as error) -> 
+      { error with Context = newContext :: context })
+
   /// <summary>
   /// Create a computation expression for Results 
   /// </summary>

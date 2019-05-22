@@ -307,4 +307,14 @@ let ``collects sequences of Results into a Result of a sequence of values`` () =
   Result.collect [Ok 1; Error "didn't"; Error "work"] |> Result.mapError Seq.toList 
   |> shouldBe (Error ["didn't"; "work"])
 
+type PretendError = PretendError
 
+[<Test>]
+let ``is easy to add context to result errors`` () = 
+  let x = Error PretendError
+  let y = x |> Result.createContext "this error is totally pretend"
+  let z = y |> Result.addContext "really, really pretend"  
+
+  match z with
+  | Error { Context = ctx } -> ctx |> shouldBe ["really, really pretend"; "this error is totally pretend"]
+  | Ok _ -> failwith "should have been error"

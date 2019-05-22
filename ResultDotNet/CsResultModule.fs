@@ -134,7 +134,7 @@ module Result =
 
 [<AutoOpen>]
 [<Extension>]
-module ResultExtensions = 
+module FsResultExtensions = 
   /// <summary>
   /// Converts to a ResultDotNet Result type.  Used for interoping between C# and F# codebases.
   /// </summary>
